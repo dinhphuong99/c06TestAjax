@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <form modelAttribute="objEmail" action="/email/send-info" method="post">
+        <div>
+            <div style="">
+                <label for="languages">Languages</label>
+                <select id="languages" name="languages">
+                    <tr th:each="item, index : ${listLanguages}">
+                        <option th:value="${item}" th:text="${item}"></option>
+                    </tr>
+                </select>
+            </div>
+        </div>
+        <div>
+            <input type="submit" value="Save">
+        </div>
+    </form>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create customer</title>
+    <th:block th:replace="/layout/head :: head" />
+</head>
+<body>
+<!-- Begin page -->
+<div id="wrapper">
+
+    <!-- Topbar Start -->
+    <div class="navbar-custom">
+        <th:block th:replace="/layout/navbar-top :: navbar-top" />
+    </div>
+    <!-- end Topbar --> <!-- ========== Left Sidebar Start ========== -->
+    <div class="left-side-menu">
+
+        <th:block th:replace="/layout/left-side-menu :: left-side-menu" />
+
+        <div class="clearfix"></div>
+
+    </div>
+    <!-- Left Sidebar End -->
+
+    <!-- ============================================================== -->
+    <!-- Start Page Content here -->
+    <!-- ============================================================== -->
+
+    <div class="content-page">
+        <div class="content">
+
+            <!-- Start container-fluid -->
+            <div class="container-fluid">
+
+                <div class="row">
+                    <div class="col-12">
+                        <div>
+                            <h4 class="header-title mb-3">Create Page !</h4>
+                        </div>
+                    </div>
+                </div>
+                <!-- end row -->
+
+                <div>
+                    <a href="/customers">
+                        <button type="button" class="btn btn-success waves-effect">
+                            Return list customers
+                        </button>
+                    </a>
+                </div>
+
+                <div>
+                    <div class="col-12">
+                        <div>
+                            <th:block th:if="${success != null}" >
+                                <h4 class="header-title mb-3" th:text="${success}"></h4>
+                            </th:block>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="mt-5">
+                            <div class="">
+                                <form action="/customers/create-customer" class="form-validation" th:object="${customer}" method="POST">
+                                    <div class="form-group">
+                                        <label for="firstName">First Name<span class="text-danger"> *</span></label>
+                                        <input type="text" id="firstName" name="firstName" th:field="*{firstName}" parsley-trigger="change" required="" placeholder="Enter first name" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="lastName">Last Name<span class="text-danger"> *</span></label>
+                                        <input type="text" id="lastName" name="lastName" th:field="*{lastName}" parsley-trigger="change" required="" placeholder="Enter last name" class="form-control">
+                                    </div>
+
+                                    <div class="form-group text-right mb-0">
+                                        <button class="btn btn-primary waves-effect waves-light mr-1" type="submit">
+                                            Save
+                                        </button>
+                                    </div>
+
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            <!-- end container-fluid -->
+
+
+            <!-- Footer Start -->
+            <th:block th:replace="/layout/footer :: footer" />
+            <!-- end Footer -->
+
+        </div>
+        <!-- end content -->
+
+    </div>
+    <!-- END content-page -->
+
+</div>
+<!-- END wrapper -->
+
+
+<!-- Right Sidebar -->
+<th:block th:replace="/layout/right-bar :: right-bar" />
+<!-- /Right-bar -->
+
+<!-- Right bar overlay-->
+<div class="rightbar-overlay"></div>
+
+<a href="javascript:void(0);" class="right-bar-toggle demos-show-btn">
+    <i class="mdi mdi-settings-outline mdi-spin"></i> &nbsp;Choose Demos
+</a>
+
+<th:block th:replace="/layout/script :: script" />
+
+</body>
+</html>

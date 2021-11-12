@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>List of users</title>
+    <link href="/assets/bootstrap-4.6.0-dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" id="bootstrap-stylesheet">
+    <link rel="stylesheet" href="/assets/font-awesome-4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/jquery-3.6.0.js"></script>
+    <script src="/assets/bootstrap-4.6.0-dist/js/bootstrap.bundle.js"></script>
+    <script src="/assets/js/sweetalert2.js"></script>
+</head>
+<body>
+    <div class="" style="padding: 25px;">
+
+        <header>
+            <form>
+                <div class="form-group row">
+                    <div class="col-4">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" class="form-control" id="fullName">
+                    </div>
+                    <div class="col-4">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email">
+                    </div>
+                    <div class="col-4">
+                        <label for="phone">Phone</label>
+                        <input type="text" class="form-control" id="phone">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-3">
+                        <label for="balance">Balance</label>
+                        <input type="number" class="form-control" id="balance">
+                    </div>
+                    <div class="col-3">
+                        <label for="phone">Province</label>
+                        <select id="province" class="select form-control">
+                        </select>
+                    </div>
+                    <div class="col-3">
+                        <label for="district">District</label>
+                        <select id="district" class="select form-control">
+                        </select>
+                    </div>
+                    <div class="col-3">
+                        <label for="ward">Ward</label>
+                        <select id="ward" class="select form-control">
+                        </select>
+                    </div>
+                </div>
+                <button type="button" id="btnCreate" class="btn btn-primary">Create user</button>
+            </form>
+        </header>
+
+        <div class="modal-content" style="border: 0; margin-top: 25px;">
+            <table class="table table-hover">
+                <thead style="background-color: #2a9d05; color: #fff;">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Full Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Balance</th>
+                        <th scope="col">Province</th>
+                        <th scope="col">District</th>
+                        <th scope="col">Ward</th>
+                        <th scope="col">Phone</th>
+                        <th colspan="2" scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tbListUser">
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modal update user information</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group row">
+                            <div class="col-2">
+                                <label for="idUp">ID</label>
+                                <input type="text" class="form-control" id="idUp" readonly>
+                            </div>
+                            <div class="col-4">
+                                <label for="fullNameUp">Full Name</label>
+                                <input type="text" class="form-control" id="fullNameUp">
+                            </div>
+                            <div class="col-3">
+                                <label for="emailUp">Email</label>
+                                <input type="email" class="form-control" id="emailUp">
+                            </div>
+                            <div class="col-3">
+                                <label for="phoneUp">Phone</label>
+                                <input type="text" class="form-control" id="phoneUp">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-3">
+                                <label for="phone">Province</label>
+                                <select id="provinceUp" class="select form-control">
+                                </select>
+                            </div>
+                            <div class="col-3">
+                                <label for="districtUp">District</label>
+                                <select id="districtUp" class="select form-control">
+                                </select>
+                            </div>
+                            <div class="col-3">
+                                <label for="wardUp">Ward</label>
+                                <select id="wardUp" class="select form-control">
+                                </select>
+                            </div>
+                            <div class="col-3">
+                                <label for="balanceUp">Balance</label>
+                                <input type="number" class="form-control" id="balanceUp">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="btnUpdate" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/page/js/app.js"></script>
+
+    <script>
+
+        let api_province = "https://vapi.vnappmob.com/api/province";
+        let api_district = "https://vapi.vnappmob.com/api/province/district";
+        let api_ward = "https://vapi.vnappmob.com/api/province/ward";
+
+
+        let user = new User();
+        let locationRegion = new LocationRegion();
+
+        $("#btnCreate").on("click", function () {
+            createUser();
+        })
+
+        $("#btnUpdate").on("click", function () {
+            updateUser();
+        })
+
+        function handleDelete() {
+            $("table tbody tr").on("click", ".delete", function () {
+                let id = $(this).data("id");
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+
+                        $.ajax({
+                            headers: {
+                                'Accept':'application/json',
+                                'Content-Type':'application/json'
+                            },
+                            url: "/api/users/delete/" + id,
+                            type: "GET"
+                        }).done(function (resp) {
+
+                            console.log(resp)
+
+                            if (resp === true) {
+
+                                $("#tr_" + id).remove();
+
+                                Swal.fire(
+                                    'Deleted!',
+                                    'This user has been deleted.',
+                                    'success'
+                                )
+                            } else {
+                                alert("UnSuccess deleted")
+                            }
+
+                        }).fail(function () {
+                            alert("UnSuccess deleted 2")
+                        });
+
+                    }
+                })
+
+            });
+        }
+
+
+        $("#province").on("change", function () {
+            let province_id = $("#province").val();
+
+            getAllDistricts(province_id).then(function () {
+                let district_id = $("#district").val();
+
+                getAllWards(district_id);
+            });
+
+        });
+
+        $("#provinceUp").on("change", function () {
+            let province_id = $("#provinceUp").val();
+
+            getAllDistricts(province_id).then(function () {
+                let district_id = $("#districtUp").val();
+
+                getAllWards(district_id);
+
+            });
+        });
+
+        $("#district").on("change", function () {
+            let district_id = $("#district").val();
+
+            getAllWards(district_id);
+        });
+
+        $("#districtUp").on("change", function () {
+            let district_id = $("#districtUp").val();
+
+            getAllWards(district_id);
+        });
+
+       function handleEdit() {
+           $("table tbody tr").on("click", ".edit", function () {
+               let id = $(this).data("id");
+
+               console.log("id = " + id)
+
+               $.ajax({
+                       headers: {
+                           'Accept':'application/json',
+                           'Content-Type':'application/json'
+                       },
+                       url: "/api/users/" + id,
+                       type: "GET"
+                   }).done(function (resp) {
+
+                   $("#idUp").val(resp.id);
+                   $("#fullNameUp").val(resp.fullName);
+                   $("#emailUp").val(resp.email);
+                   $("#phoneUp").val(resp.phone);
+                   $("#balanceUp").val(resp.balance);
+                   $("#provinceUp").val(resp.provinceId);
+
+                   getAllDistricts(resp.provinceId).then(function () {
+                       $("#districtUp").val(resp.districtId);
+
+                       getAllWards(resp.districtId).then(function () {
+                           $("#wardUp").val(resp.wardId);
+                       });
+                   });
+
+               }).fail(function () {
+                   alert("ERROR")
+               });
+           })
+       }
+
+        function createUser() {
+
+            locationRegion.provinceId = $("#province").val();
+            locationRegion.provinceName = $("#province :selected").text();
+            locationRegion.districtId = $("#district").val();
+            locationRegion.districtName = $("#district :selected").text();
+            locationRegion.wardId = $("#ward").val();
+            locationRegion.wardName = $("#ward :selected").text();
+
+            user.fullName = $("#fullName").val();
+            user.email = $("#email").val();
+            user.phone = $("#phone").val();
+            user.balance = $("#balance").val();
+            user.locationRegion = locationRegion;
+
+            $.ajax({
+                    headers: {
+                        'Accept':'application/json',
+                        'Content-Type':'application/json'
+                    },
+                    url: "/api/users/create",
+                    type: "POST",
+                    data: JSON.stringify(user)
+
+                }).done(function (resp) {
+
+                console.log(resp)
+
+                let str = '';
+
+                str = `
+                    <tr id="tr_${resp.id}">
+                        <th scope="row">${resp.id}</th>
+                        <td>${resp.fullName}</td>
+                        <td>${resp.email}</td>
+                        <td>${resp.balance}</td>
+                        <td>${resp.locationRegion.provinceName}</td>
+                        <td>${resp.locationRegion.districtName}</td>
+                        <td>${resp.locationRegion.wardName}</td>
+                        <td>${resp.phone}</td>
+                        <td>
+                            <button type="button" data-toggle="modal" data-target="#updateModal" class="btn btn-outline-primary edit"
+                                data-id="${resp.id}"
+                            >
+                                <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                                Edit
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-outline-danger delete" data-id="${resp.id}">
+                                <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                `;
+
+                $("#tbListUser").prepend(str);
+
+                handleEdit();
+
+                handleDelete();
+
+            }).fail(function () {
+                alert("ERROR")
+            });
+        }
+
+        function updateUser() {
+
+            user.id = $("#idUp").val();
+            user.fullName = $("#fullNameUp").val();
+            user.email = $("#emailUp").val();
+            user.phone = $("#phoneUp").val();
+            user.balance = $("#balanceUp").val();
+            user.provinceId = $("#provinceUp").val();
+            user.provinceName = $("#provinceUp :selected").text();
+            user.districtId = $("#districtUp").val();
+            user.districtName = $("#districtUp :selected").text();
+            user.wardId = $("#wardUp").val();
+            user.wardName = $("#wardUp :selected").text();
+
+            $.ajax({
+                headers: {
+                    'Accept':'application/json',
+                    'Content-Type':'application/json'
+                },
+                url: "/api/users/update",
+                type: "POST",
+                data: JSON.stringify(user)
+            }).done(function (resp) {
+
+                let str = '';
+
+                str = `
+                    <tr id="tr_${resp.id}">
+                        <th scope="row">${resp.id}</th>
+                        <td>${resp.fullName}</td>
+                        <td>${resp.email}</td>
+                        <td>${resp.balance}</td>
+                        <td>${resp.provinceName}</td>
+                        <td>${resp.districtName}</td>
+                        <td>${resp.wardName}</td>
+                        <td>${resp.phone}</td>
+                        <td>
+                            <button type="button" data-toggle="modal" data-target="#updateModal" class="btn btn-outline-primary edit"
+                                data-id="${resp.id}"
+                            >
+                                <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                                Edit
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-outline-danger delete" data-id="${resp.id}">
+                                <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                `;
+
+                $("#tr_"+ resp.id).replaceWith(str);
+
+                $("#updateModal").modal('hide');
+
+                handleEdit();
+
+                handleDelete();
+
+            }).fail(function () {
+                alert("ERROR")
+            });
+        }
+
+        function getListUser() {
+            $.ajax({
+                    headers: {
+                        'Accept':'application/json',
+                        'Content-Type':'application/json'
+                    },
+                    url: "/api/users",
+                    type: "GET"
+                }).done(function (resp) {
+
+                let str = '';
+
+                $.each(resp, function(index, item) {
+
+                    user = item;
+                    locationRegion = user.locationRegion;
+
+                    str = `
+                        <tr id="tr_${user.id}">
+                            <th scope="row">${user.id}</th>
+                            <td>${user.fullName}</td>
+                            <td>${user.email}</td>
+                            <td>${user.balance}</td>
+                            <td>${locationRegion.provinceName}</td>
+                            <td>${locationRegion.districtName}</td>
+                            <td>${locationRegion.wardName}</td>
+                            <td>${user.phone}</td>
+                            <td>
+                                <button type="button" data-toggle="modal" data-target="#updateModal" class="btn btn-outline-primary edit"
+                                    data-id="${user.id}"
+                                >
+                                    <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                                    Edit
+                                </button>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-outline-danger delete" data-id="${user.id}">
+                                    <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                    Delete
+                                </button>
+                            </td>
+
+                        </tr>
+                    `;
+
+                    $("#tbListUser").prepend(str);
+                });
+
+                handleEdit();
+
+                handleDelete();
+
+            }).fail(function (err) {
+                console.log(err)
+                alert("ERROR")
+            });
+        }
+
+        function getAllProvinces() {
+            return $.ajax({
+                    url: api_province,
+                    type: "GET"
+                }).done(function (resp) {
+
+                let str = '';
+
+                $.each(resp.results, function(index, item) {
+                    str = `
+                        <option value="${item.province_id}">${item.province_name}</option>
+                    `;
+                    $("#province").append(str);
+                    $("#provinceUp").append(str);
+                })
+            }).fail(function () {
+                alert("ERROR")
+            });
+        }
+
+        function getAllDistricts(province_id) {
+
+            $("#district").empty();
+            $("#districtUp").empty();
+
+            return $.ajax({
+                    url: api_district + "/" + province_id,
+                    type: "GET"
+                }).done(function (resp) {
+
+                let str = '';
+
+                $.each(resp.results, function(index, item) {
+                    str = `
+                        <option value="${item.district_id}">${item.district_name}</option>
+                    `;
+                    $("#district").append(str);
+                    $("#districtUp").append(str);
+                })
+            }).fail(function () {
+                alert("ERROR")
+            });
+        }
+
+        function getAllWards(district_id) {
+
+            $("#ward").empty();
+            $("#wardUp").empty();
+
+            return $.ajax({
+                url: api_ward + "/" + district_id,
+                type: "GET"
+            }).done(function (resp) {
+
+                let str = '';
+
+                $.each(resp.results, function(index, item) {
+                    str = `
+                        <option value="${item.ward_id}">${item.ward_name}</option>
+                    `;
+                    $("#ward").append(str);
+                    $("#wardUp").append(str);
+                })
+            }).fail(function () {
+                alert("ERROR")
+            });
+        }
+
+
+        $(document).ready(function () {
+            getListUser();
+
+            getAllProvinces().then(function () {
+                let province_id = $("#province").val();
+
+                getAllDistricts(province_id).then(function () {
+                    let district_id = $("#district").val();
+
+                    getAllWards(district_id);
+                });
+            });
+
+        });
+
+    </script>
+
+</body>
+</html>
